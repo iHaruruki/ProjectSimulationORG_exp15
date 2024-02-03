@@ -52,6 +52,10 @@ END_MESSAGE_MAP()
 
 CProjectSimulationORGexp15Dlg::CProjectSimulationORGexp15Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_PROJECTSIMULATIONORG_EXP15_DIALOG, pParent)
+	, m_alpha_Pos(0)
+	, m_beta_Pos(0)
+	, m_alpha_Dist(0)
+	, m_beta_Dist(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -59,12 +63,21 @@ CProjectSimulationORGexp15Dlg::CProjectSimulationORGexp15Dlg(CWnd* pParent /*=nu
 void CProjectSimulationORGexp15Dlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_ALPHA_POS, m_alpha_Pos);
+	DDX_Text(pDX, IDC_BETA_POS, m_beta_Pos);
+	DDX_Text(pDX, IDC_ALPHA_MOVE, m_alpha_Dist);
+	DDX_Text(pDX, IDC_BETA_MOVE, m_beta_Dist);
+	DDX_Control(pDX, IDC_SCROLLBAR, m_vsbVal);
 }
 
 BEGIN_MESSAGE_MAP(CProjectSimulationORGexp15Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_STN_CLICKED(IDC_PICTURE, &CProjectSimulationORGexp15Dlg::OnStnClickedPicture)
+	ON_EN_CHANGE(IDC_EDIT4, &CProjectSimulationORGexp15Dlg::OnEnChangeEdit4)
+	ON_BN_CLICKED(IDC_ABSOLUTE, &CProjectSimulationORGexp15Dlg::OnBnClickedAbsolute)
+	ON_BN_CLICKED(IDC_DRAW, &CProjectSimulationORGexp15Dlg::OnBnClickedDraw)
 END_MESSAGE_MAP()
 
 
@@ -153,3 +166,32 @@ HCURSOR CProjectSimulationORGexp15Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CProjectSimulationORGexp15Dlg::OnStnClickedPicture()
+{
+	// TODO: ここにコントロール通知ハンドラー コードを追加します。
+}
+
+
+void CProjectSimulationORGexp15Dlg::OnEnChangeEdit4()
+{
+	// TODO: これが RICHEDIT コントロールの場合、このコントロールが
+	// この通知を送信するには、CDialogEx::OnInitDialog() 関数をオーバーライドし、
+	// CRichEditCtrl().SetEventMask() を関数し呼び出します。
+	// OR 状態の ENM_CHANGE フラグをマスクに入れて呼び出す必要があります。
+
+	// TODO: ここにコントロール通知ハンドラー コードを追加してください。
+}
+
+
+void CProjectSimulationORGexp15Dlg::OnBnClickedAbsolute()
+{
+	// TODO: ここにコントロール通知ハンドラー コードを追加します。
+}
+
+
+void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
+{
+	// TODO: ここにコントロール通知ハンドラー コードを追加します。
+}
