@@ -44,4 +44,6 @@ public:
 	afx_msg void OnNMThemeChangedScrollbar(NMHDR* pNMHDR, LRESULT* pResult);
 //	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg void OnBnClickedLeft();
+	afx_msg void OnBnClickedRight();
 };

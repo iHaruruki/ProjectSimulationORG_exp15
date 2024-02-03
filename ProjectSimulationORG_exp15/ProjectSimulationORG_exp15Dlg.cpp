@@ -81,6 +81,8 @@ BEGIN_MESSAGE_MAP(CProjectSimulationORGexp15Dlg, CDialogEx)
 	ON_NOTIFY(NM_THEMECHANGED, IDC_SCROLLBAR, &CProjectSimulationORGexp15Dlg::OnNMThemeChangedScrollbar)
 //	ON_WM_VSCROLL()
 	ON_WM_HSCROLL()
+	ON_BN_CLICKED(IDC_LEFT, &CProjectSimulationORGexp15Dlg::OnBnClickedLeft)
+	ON_BN_CLICKED(IDC_RIGHT, &CProjectSimulationORGexp15Dlg::OnBnClickedRight)
 END_MESSAGE_MAP()
 
 
@@ -313,4 +315,31 @@ void CProjectSimulationORGexp15Dlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBa
 	UpdateData(FALSE);
 
 	CDialogEx::OnHScroll(nSBCode, nPos, pScrollBar);
+}
+
+void CProjectSimulationORGexp15Dlg::OnBnClickedLeft()
+{
+	// TODO: ここにコントロール通知ハンドラー コードを追加します。
+
+	//ダイアログボックスから変数データを転送
+	UpdateData(TRUE);
+
+	m_beta_Dist--;	//変数m_addVal2の値を1増やす
+
+	//変数(m_addVal2)からダイアログボックスにデータを転送
+	UpdateData(FALSE);
+}
+
+
+void CProjectSimulationORGexp15Dlg::OnBnClickedRight()
+{
+	// TODO: ここにコントロール通知ハンドラー コードを追加します。
+
+	//ダイアログボックスから変数データを転送
+	UpdateData(TRUE);
+
+	m_beta_Dist++;	//変数m_addVal2の値を1増やす
+
+	//変数(m_addVal2)からダイアログボックスにデータを転送
+	UpdateData(FALSE);
 }
