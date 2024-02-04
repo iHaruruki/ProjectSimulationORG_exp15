@@ -197,157 +197,6 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedAbsolute()
 	// TODO: ここにコントロール通知ハンドラー コードを追加します。
 }
 
-
-void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
-{
-	// TODO: ここにコントロール通知ハンドラー コードを追加します。
-
-	CWnd* cwdPict = GetDlgItem(IDC_PICTURE);	//IDC_PICTUREのウィンドウハンドルを取得
-	CDC* dcPict = cwdPict->GetDC();				//デバイスコンテキストの取得
-
-	CRect pictRect;								//ピクチャ・ボックスの座標を格納
-	cwdPict->GetClientRect(&pictRect);			//ピクチャ・ボックスの座標を取得
-
-	COLORREF color = RGB(0, 0, 0);				//色の設定
-
-	//ラジオボタンを利用可能にするためにIDを取得
-	CButton* absoluteRadio = (CButton*)GetDlgItem(IDC_ABSOLUTE);
-	CButton* relativeRadio = (CButton*)GetDlgItem(IDC_RELATIVE);
-
-	//ピクチャ・ボックスをクリアする
-	dcPict->FillSolidRect(pictRect, RGB(255, 255, 255));	//白色で塗りつぶす
-
-	//原点のオフセットを設定
-	int offsetX = 200;	//X軸の中心
-	int offsetY = 250;	//Y軸の中心
-
-	//アームロボットの初期位置を設定
-	int x_alpha_o[] = { 0,    10,  10, -10, -10 };	//x[0]はロボットアームのジョイント位置
-	int y_alpha_o[] = { 0,     0, 100, 100,   0 };	//y[0]はロボットアームのジョイント位置
-	int x_beta_o[] =  { 0,    10,  10, -10, -10 };	//X軸の初期位置(β軸）
-	int y_beta_o[] =  { 100, 100, 200, 200, 100 };	//Y軸の初期位置(β軸)
-
-	//アームロボットの現在位置を設定
-	static int x_alpha[5] = { 0 };
-	static int y_alpha[5] = { 0 };
-	int x_beta = 0;
-	int y_beta = 0;
-
-	//ロボットの現在位置（静的変数）
-	static int abs_alpha_Pos = 0;
-	static int abs_beta_Pos = 0;
-
-	//XY軸の描画
-	for (int i = 0; i < 400; i++) {
-		dcPict->SetPixel(i, offsetY, color);	//X軸
-	}
-	for (int j = 0; j < 250; j++) {
-		dcPict->SetPixel(offsetX, j, color);	//Y軸
-	}
-
-	//ダイアログボックスから変数にデータを転送
-	UpdateData(TRUE);
-
-	//ラジオボタンの絶対位置に選択されているとき
-	if (absoluteRadio->GetCheck()) {
-		m_alpha_Pos = m_alpha_Dist;
-		m_beta_Pos = m_beta_Dist;	//入力距離を移動位置に設定
-		abs_alpha_Pos = 0;			//絶対位置の初期化
-		abs_beta_Pos = 0;			//絶対位置の初期化
-	}
-	//ラジオボタンの相対位置に選択されているとき
-	else if (relativeRadio->GetCheck()) {
-		m_alpha_Pos = abs_alpha_Pos + m_alpha_Dist;		//絶対位置を移動位置に設定
-		m_beta_Pos = abs_beta_Pos + m_beta_Dist;		//入力距離を移動位置に設定
-	}
-
-	//角度を度数法から弧度法に変換
-	const double M_PI = 3.14159265358979323846;	//円周率を定義
-	double alpha = m_alpha_Pos * M_PI / 180;
-	double beta = m_beta_Pos * M_PI / 180;
-
-	//位置の範囲をチェック
-	if (m_alpha_Dist < -36 || m_alpha_Dist > 36 || m_beta_Dist < -44 || m_beta_Dist > 44) {
-		MessageBox(_T("範囲外の値です。"), _T("エラー"), MB_ICONEXCLAMATION);
-		return;
-	}
-
-	//ダイアログボックスに変数からデータを転送
-	UpdateData(FALSE);
-
-	//アームロボットの初期位置------------------------------------------------------------
-	
-	// α軸の位置
-	//ペンの指定
-	CPen myPen;
-	myPen.CreatePen(PS_SOLID, 2, RGB(0, 0, 255));	//青色のペンを作成
-	dcPict->SelectObject(&myPen);					//ペンを選択
-
-	//関節関節(ジョイント)描画
-	//dcPict->Ellipse(offsetX + x_alpha_o[0] - 20, offsetY - y_alpha_o[0] - 20, offsetX + x_alpha_o[0] + 20, offsetY - y_alpha_o[0] + 20);
-
-	//ロボットアーム(リンク)の描画
-	dcPict->MoveTo(offsetX + x_alpha_o[1], offsetY - y_alpha_o[1]);	//ロボットの初期位置に移動
-	for (int i = 4; i >= 1; i--) {
-		dcPict->LineTo(offsetX + x_alpha_o[i], offsetY - y_alpha_o[i]);
-	}
-
-	//ペンの開放
-	myPen.DeleteObject();
-
-	// β軸の位置
-	//ペンの指定
-	CPen myPen1;
-	myPen1.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));	//赤色のペンを作成
-	dcPict->SelectObject(&myPen1);					//ペンを選択
-
-	//関節関節(ジョイント)描画
-	//dcPict->Ellipse(offsetX + x_beta_o[0] - 20, offsetY - y_beta_o[0] - 20, offsetX + x_beta_o[0] + 20, offsetY - y_beta_o[0] + 20);
-
-	//ロボットアーム(リンク)の描画
-	dcPict->MoveTo(offsetX + x_beta_o[1], offsetY - y_beta_o[1]);	//ロボットの初期位置に移動
-	for (int i = 4; i >= 1; i--) {
-		dcPict->LineTo(offsetX + x_beta_o[i], offsetY - y_beta_o[i]);
-	}
-
-	//ペンの開放
-	myPen.DeleteObject();
-
-	/*//移動後のロボットの位置----------------------------------------------------------
-	
-	//α軸の移動後の位置
-	//ペンの指定
-	CPen myPen2;
-	myPen2.CreatePen(PS_SOLID, 2, RGB(250, 150, 50));	//ペンを作成
-	dcPict->SelectObject(&myPen2);						//ペンを選択	
-
-	//関節関節(ジョイント)描画
-	dcPict->Ellipse(offsetX + x_alpha[0] - 20, offsetY - y_alpha[0] - 20, offsetX + x_alpha[0] + 20, offsetY - y_alpha[0] + 20);
-
-	//2次元の回転行列を用いてロボットアームの位置を計算
-	for (int i = 4; i >= 1; i--) {
-		x_alpha[i] = x_alpha_o[i] * sin(alpha);
-		y_alpha[i] = y_alpha_o[i] * cos(alpha);
-	}
-
-	//ロボットアーム(リンク)の描画
-	dcPict->MoveTo(offsetX + x_alpha[1], offsetY - y_alpha[1]);	//
-	for (int i = 4; i >= 1; i--) {
-		dcPict->LineTo(offsetX + x_alpha[i], offsetY - y_alpha[i]);
-	}
-
-	//ペンの開放
-	myPen.DeleteObject();
-
-	//β軸の移動後の位置
-	int x_m2[5], y_m2[5];*/
-	
-
-	//現在位置の更新
-	abs_alpha_Pos = m_alpha_Pos;
-	abs_beta_Pos = m_beta_Pos;
-}
-
 void CProjectSimulationORGexp15Dlg::OnNMThemeChangedScrollbar(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	// この機能は Windows XP それ以降のバージョンを必要とします。
@@ -431,4 +280,154 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedRight()
 
 	//変数(m_addVal2)からダイアログボックスにデータを転送
 	UpdateData(FALSE);
+}
+
+void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
+{
+	// TODO: ここにコントロール通知ハンドラー コードを追加します。
+
+	CWnd* cwdPict = GetDlgItem(IDC_PICTURE);	//IDC_PICTUREのウィンドウハンドルを取得
+	CDC* dcPict = cwdPict->GetDC();				//デバイスコンテキストの取得
+
+	CRect pictRect;								//ピクチャ・ボックスの座標を格納
+	cwdPict->GetClientRect(&pictRect);			//ピクチャ・ボックスの座標を取得
+
+	COLORREF color = RGB(0, 0, 0);				//色の設定
+
+	//ラジオボタンを利用可能にするためにIDを取得
+	CButton* absoluteRadio = (CButton*)GetDlgItem(IDC_ABSOLUTE);
+	CButton* relativeRadio = (CButton*)GetDlgItem(IDC_RELATIVE);
+
+	//ピクチャ・ボックスをクリアする
+	dcPict->FillSolidRect(pictRect, RGB(255, 255, 255));	//白色で塗りつぶす
+
+	//原点のオフセットを設定
+	int offsetX = 200;	//X軸の中心
+	int offsetY = 250;	//Y軸の中心
+
+	//アームロボットの初期位置を設定
+	int x_alpha_o[] = { 0,    10,  10, -10, -10 };	//x[0]はロボットアームのジョイント位置
+	int y_alpha_o[] = { 0,     0, 100, 100,   0 };	//y[0]はロボットアームのジョイント位置
+	int x_beta_o[] = { 0,    10,  10, -10, -10 };	//X軸の初期位置(β軸）
+	int y_beta_o[] = { 100, 100, 200, 200, 100 };	//Y軸の初期位置(β軸)
+
+	//アームロボットの現在位置を設定
+	static int x_alpha[5] = { 0 };
+	static int y_alpha[5] = { 0 };
+	static int x_beta[5] = { 0 };
+	static int y_beta[5] = { 0 };
+
+	//ロボットの現在位置（静的変数）
+	static int abs_alpha_Pos = 0;
+	static int abs_beta_Pos = 0;
+
+	//XY軸の描画
+	for (int i = 0; i < 400; i++) {
+		dcPict->SetPixel(i, offsetY, color);	//X軸
+	}
+	for (int j = 0; j < 250; j++) {
+		dcPict->SetPixel(offsetX, j, color);	//Y軸
+	}
+
+	//ダイアログボックスから変数にデータを転送
+	UpdateData(TRUE);
+
+	//ラジオボタンの絶対位置に選択されているとき
+	if (absoluteRadio->GetCheck()) {
+		m_alpha_Pos = m_alpha_Dist;
+		m_beta_Pos = m_beta_Dist;	//入力距離を移動位置に設定
+		abs_alpha_Pos = 0;			//絶対位置の初期化
+		abs_beta_Pos = 0;			//絶対位置の初期化
+	}
+	//ラジオボタンの相対位置に選択されているとき
+	else if (relativeRadio->GetCheck()) {
+		m_alpha_Pos = abs_alpha_Pos + m_alpha_Dist;		//絶対位置を移動位置に設定
+		m_beta_Pos = abs_beta_Pos + m_beta_Dist;		//入力距離を移動位置に設定
+	}
+
+	//角度を度数法から弧度法に変換
+	const double M_PI = 3.14159265358979323846;	//円周率を定義
+	double alpha = m_alpha_Pos * M_PI / 180;
+	double beta = m_beta_Pos * M_PI / 180;
+
+	//位置の範囲をチェック
+	if (m_alpha_Dist < -36 || m_alpha_Dist > 36 || m_beta_Dist < -44 || m_beta_Dist > 44) {
+		MessageBox(_T("範囲外の値です。"), _T("エラー"), MB_ICONEXCLAMATION);
+		return;
+	}
+
+	//ダイアログボックスに変数からデータを転送
+	UpdateData(FALSE);
+
+	//アームロボットの初期位置------------------------------------------------------------
+/*
+	// α軸の位置
+	//ペンの指定
+	CPen myPen_alpha;
+	myPen_alpha.CreatePen(PS_SOLID, 2, RGB(0, 0, 255));	//青色のペンを作成
+	dcPict->SelectObject(&myPen_alpha);					//ペンを選択
+
+	//関節関節(ジョイント)描画
+	//dcPict->Ellipse(offsetX + x_alpha_o[0] - 20, offsetY - y_alpha_o[0] - 20, offsetX + x_alpha_o[0] + 20, offsetY - y_alpha_o[0] + 20);
+
+	//ロボットアーム(リンク)の描画
+	dcPict->MoveTo(offsetX + x_alpha_o[1], offsetY - y_alpha_o[1]);	//ロボットの初期位置に移動
+	for (int i = 4; i >= 1; i--) {
+		dcPict->LineTo(offsetX + x_alpha_o[i], offsetY - y_alpha_o[i]);
+	}
+
+	//ペンの開放
+	myPen_alpha.DeleteObject();
+
+	// β軸の位置
+	//ペンの指定
+	CPen myPen_beta;
+	myPen_beta.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));	//赤色のペンを作成
+	dcPict->SelectObject(&myPen_beta);					//ペンを選択
+
+	//関節関節(ジョイント)描画
+	//dcPict->Ellipse(offsetX + x_beta_o[0] - 20, offsetY - y_beta_o[0] - 20, offsetX + x_beta_o[0] + 20, offsetY - y_beta_o[0] + 20);
+
+	//ロボットアーム(リンク)の描画
+	dcPict->MoveTo(offsetX + x_beta_o[1], offsetY - y_beta_o[1]);	//ロボットの初期位置に移動
+	for (int i = 4; i >= 1; i--) {
+		dcPict->LineTo(offsetX + x_beta_o[i], offsetY - y_beta_o[i]);
+	}
+
+	//ペンの開放
+	myPen_beta.DeleteObject();*/
+
+	//移動後のロボットの位置----------------------------------------------------------
+
+	//α軸の移動後の位置
+	//ペンの指定
+	CPen myPen_alpha2;
+	myPen_alpha2.CreatePen(PS_SOLID, 2, RGB(250, 150, 50));	//ペンを作成
+	dcPict->SelectObject(&myPen_alpha2);					//ペンを選択
+
+	//2次元の回転行列を用いてロボットアームの位置を計算
+	for (int i = 4; i >= 0; i--) {
+		x_alpha[i] = x_alpha_o[i] * cos(alpha) + y_alpha_o[i] * sin(alpha);
+		y_alpha[i] = -x_alpha_o[i] * sin(alpha) + y_alpha_o[i] * cos(alpha);
+	}
+
+	//関節関節(ジョイント)描画
+	dcPict->Ellipse(offsetX + x_alpha[0] - 20, offsetY - y_alpha[0] - 20, offsetX + x_alpha[0] + 20, offsetY - y_alpha[0] + 20);
+
+	//ロボットアーム(リンク)の描画
+	dcPict->MoveTo(offsetX + x_alpha[1], offsetY - y_alpha[1]);	//
+	for (int i = 4; i >= 1; i--) {
+		dcPict->LineTo(offsetX + x_alpha[i], offsetY - y_alpha[i]);
+	}
+
+	//ペンの開放
+	myPen_alpha2.DeleteObject();
+
+	//β軸の移動後の位置
+	int x_m2[5], y_m2[5];
+
+
+	//現在位置の更新
+	abs_alpha_Pos = m_alpha_Pos;
+	abs_beta_Pos = m_beta_Pos;
 }
