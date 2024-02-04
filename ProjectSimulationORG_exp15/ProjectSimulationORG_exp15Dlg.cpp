@@ -221,11 +221,12 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 	int offsetY = 250;	//Y軸の中心
 
 	//ロボットの初期位置を設定
-	int x_o = 0;	//X軸の初期位置(ロボットの中心)
-	int y_o = 0;	//Y軸の初期位置(ロボットの中心)
+	int x_o = 0;		//X軸の初期位置(ロボットの中心)
+	int y_o = 0;		//Y軸の初期位置(ロボットの中心)
 
 	//ロボットの現在位置（静的変数）
-	static int absPos = 0;
+	static int abs_alpha_Pos = 0;
+	static int abs_beta_Pos = 0;
 
 	//軸の描画
 	for (int i = 0; i < 400; i++) {
@@ -242,12 +243,13 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 	if (absoluteRadio->GetCheck()) {
 		m_alpha_Pos = m_alpha_Dist;
 		m_beta_Pos = m_beta_Dist;	//入力距離を移動位置に設定
-		absPos = 0;					//絶対位置の初期化
+		abs_alpha_Pos = 0;			//絶対位置の初期化
+		abs_beta_Pos = 0;			//絶対位置の初期化
 	}
 	//ラジオボタンの相対位置に選択されているとき
 	else if (relativeRadio->GetCheck()) {
-		m_alpha_Pos = absPos + m_alpha_Dist;		//絶対位置を移動位置に設定
-		m_beta_Pos = absPos + m_beta_Dist;			//入力距離を移動位置に設定
+		m_alpha_Pos = abs_alpha_Pos + m_alpha_Dist;		//絶対位置を移動位置に設定
+		m_beta_Pos = abs_beta_Pos + m_beta_Dist;		//入力距離を移動位置に設定
 	}
 
 	//位置の範囲をチェック
@@ -255,8 +257,48 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 		MessageBox(_T("範囲外の値です。"), _T("エラー"), MB_ICONEXCLAMATION);
 		return;
 	}
-}
 
+	//ダイアログボックスに変数からデータを転送
+	UpdateData(FALSE);
+
+	//ペンの指定
+	CPen myPen;
+	myPen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));	//赤色のペンを作成
+	dcPict->SelectObject(&myPen);					//ペンを選択
+
+	//ロボットの描画
+	dcPict->MoveTo(offsetX + x_o, offsetY - y_o);	//ロボットの初期位置に移動
+	for (int i = 4; i >= 1; i--) {
+		dcPict->LineTo(offsetX + x_o + m_alpha_Pos, offsetY - y_o + m_beta_Pos);//----------
+	}
+
+	//ペンの開放
+	myPen.DeleteObject();
+
+	//移動後のロボットの位置
+	int x_m[5], y_m[5];
+	for (int i = 0; i < 5; i++) {
+		x_m[i] = offsetX + x_o + m_alpha_Pos;
+		y_m[i] = offsetY - y_o + m_beta_Pos;
+	}
+
+	//ペンの指定
+	myPen.CreatePen(PS_SOLID, 2, RGB(250, 150, 50));	//ペンを作成
+	dcPict->SelectObject(&myPen);
+
+	//ロボットの描画
+	dcPict->MoveTo(x_m[1] + offsetX, y_m[1] + offsetY);
+	for (int i = 4; i >= 1; i--) {
+		dcPict->LineTo(x_m[i] + offsetX, y_m[i] + offsetY);//----------
+	}
+
+	//ペンの開放
+	myPen.DeleteObject();
+
+	//現在位置の更新
+	abs_alpha_Pos = m_alpha_Pos;
+	abs_beta_Pos = m_beta_Pos;
+}
 
 void CProjectSimulationORGexp15Dlg::OnNMThemeChangedScrollbar(NMHDR* pNMHDR, LRESULT* pResult)
 {
@@ -309,7 +351,7 @@ void CProjectSimulationORGexp15Dlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBa
 
 	//エディトボックスの値を設定
 	//メンバ変数m_vsbValのスクロールバーの現在位置を検出して代入
-	//m_addVal2 = -m_vsbVal.GetScrollPos();
+	m_alpha_Dist = m_vsbVal.GetScrollPos();
 
 	//ダイアログボックスに変数(m_vsbVal.GetScrollPos())からデータを転送
 	UpdateData(FALSE);
@@ -329,7 +371,6 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedLeft()
 	//変数(m_addVal2)からダイアログボックスにデータを転送
 	UpdateData(FALSE);
 }
-
 
 void CProjectSimulationORGexp15Dlg::OnBnClickedRight()
 {
