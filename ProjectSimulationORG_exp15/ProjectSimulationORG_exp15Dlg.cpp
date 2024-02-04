@@ -310,8 +310,6 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 	int y_J1_o[] = {   0, 100,   0, 100, 100,   0 };	//y_alpha_o[0]はロボットアームのジョイント位置, y_alpha_o[1]はロボットアームの先端の位置
 	int x_J2_o[]	= {	  0,   0,  10,  10, -10, -10 };	//x_beta_o[0]はロボットアームのジョイント位置, x_beta_o[1]はロボットアームの先端の位置
 	int y_J2_o[]	= {	  0, 100,   0, 100, 100,   0 };	//y_beta_o[0]はロボットアームのジョイント位置,	y_beta_o[1]はロボットアームの先端の位置
-	//int x_beta_o[]	= {	  0,   0,  10,  10, -10, -10 };	//X軸の初期位置(β軸）
-	//int y_beta_o[]	= {	100, 200, 100, 200, 200, 100 };	//Y軸の初期位置(β軸)
 
 	//アームロボットの現在位置を設定
 	static int x_J1[6] = { 0 };
@@ -346,6 +344,7 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 		m_alpha_Pos = abs_alpha_Pos + m_alpha_Dist;		//絶対位置を移動位置に設定
 		m_beta_Pos = abs_beta_Pos + m_beta_Dist;		//入力距離を移動位置に設定
 	}
+	//ラジオボタンが選択されていないときエラーメッセージを表示
 	else {
 		MessageBox(_T("ラジオボタンが選択されていません。"), _T("エラー"), MB_ICONEXCLAMATION);
 		return;
@@ -379,7 +378,7 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 	//J1リンクの位置--------------------------------------------------------------
 	//ペンの指定
 	CPen myPen_alpha2;
-	myPen_alpha2.CreatePen(PS_SOLID, 2, RGB(250, 150, 50));	//ペンを作成
+	myPen_alpha2.CreatePen(PS_SOLID, 2, RGB(0, 0, 255));	//ペンを作成
 	dcPict->SelectObject(&myPen_alpha2);					//ペンを選択
 
 	//2次元の回転行列を用いてロボットアームの位置を計算
@@ -403,8 +402,8 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 
 	//J2リンクの位置---------------------------------------------------------------
 	CPen myPen_beta2;
-	myPen_beta2.CreatePen(PS_SOLID, 2, RGB(0, 0, 250));	//ペンを作成
-	dcPict->SelectObject(&myPen_beta2);					//ペンを選択
+	myPen_beta2.CreatePen(PS_SOLID, 2, RGB(255, 0, 255));	//ペンを作成
+	dcPict->SelectObject(&myPen_beta2);						//ペンを選択
 
 	//2次元の回転行列を用いてロボットアームの位置を計算
 	for (int i = 5; i >= 0; i--) {
