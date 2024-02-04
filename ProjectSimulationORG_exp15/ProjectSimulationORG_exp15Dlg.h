@@ -47,4 +47,6 @@ public:
 	afx_msg void OnBnClickedLeft();
 	afx_msg void OnBnClickedRight();
 	afx_msg void OnBnClickedRelative();
+	afx_msg void OnLbnSelchangeList1();
+	afx_msg void OnCbnSelchangeCombo();
 };

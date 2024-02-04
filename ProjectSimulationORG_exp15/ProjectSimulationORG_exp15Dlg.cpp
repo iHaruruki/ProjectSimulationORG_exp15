@@ -382,9 +382,9 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 
 	//J1リンクの位置--------------------------------------------------------------
 	//ペンの指定
-	CPen myPen_alpha2;
-	myPen_alpha2.CreatePen(PS_SOLID, 2, RGB(0, 0, 255));	//ペンを作成
-	dcPict->SelectObject(&myPen_alpha2);					//ペンを選択
+	CPen myPen_J1;
+	myPen_J1.CreatePen(PS_SOLID, 2, RGB(0, 0, 255));	//ペンを作成
+	dcPict->SelectObject(&myPen_J1);					//ペンを選択
 
 	//2次元の回転行列を用いてロボットアームの位置を計算
 	for (int i = 5; i >= 0; i--) {
@@ -402,13 +402,13 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 	}
 
 	//ペンの開放
-	myPen_alpha2.DeleteObject();
+	myPen_J1.DeleteObject();
 
 
 	//J2リンクの位置---------------------------------------------------------------
-	CPen myPen_beta2;
-	myPen_beta2.CreatePen(PS_SOLID, 2, RGB(255, 0, 255));	//ペンを作成
-	dcPict->SelectObject(&myPen_beta2);						//ペンを選択
+	CPen myPen_J2;
+	myPen_J2.CreatePen(PS_SOLID, 2, RGB(255, 0, 255));	//ペンを作成
+	dcPict->SelectObject(&myPen_J2);					//ペンを選択
 
 	//2次元の回転行列を用いてロボットアームの位置を計算
 	for (int i = 5; i >= 0; i--) {
@@ -426,7 +426,8 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 	}
 
 	//ペンの開放
-	myPen_beta2.DeleteObject();
+	myPen_J2.DeleteObject();
+
 
 	//J3リンクの位置---------------------------------------------------------------
 	CPen myPen_J3;
