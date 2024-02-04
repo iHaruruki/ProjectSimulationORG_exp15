@@ -84,6 +84,7 @@ BEGIN_MESSAGE_MAP(CProjectSimulationORGexp15Dlg, CDialogEx)
 	ON_WM_HSCROLL()
 	ON_BN_CLICKED(IDC_LEFT, &CProjectSimulationORGexp15Dlg::OnBnClickedLeft)
 	ON_BN_CLICKED(IDC_RIGHT, &CProjectSimulationORGexp15Dlg::OnBnClickedRight)
+	ON_BN_CLICKED(IDC_RELATIVE, &CProjectSimulationORGexp15Dlg::OnBnClickedRelative)
 END_MESSAGE_MAP()
 
 
@@ -119,7 +120,7 @@ BOOL CProjectSimulationORGexp15Dlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 小さいアイコンの設定
 
 	// TODO: 初期化をここに追加します。
-	m_vsbVal.SetScrollRange(-36, 36);	//スクロールバーの範囲を設定
+	m_vsbVal.SetScrollRange(-36, 36);	//スクロールバーの範囲を設定------------------------
 
 	return TRUE;  // フォーカスをコントロールに設定した場合を除き、TRUE を返します。
 }
@@ -306,16 +307,20 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 	int offsetY = 250;	//Y軸の中心
 
 	//アームロボットの初期位置を設定(相対座標で表現)
-	int x_J1_o[] = {   0,   0,  10,  10, -10, -10 };	//x_alpha_o[0]はロボットアームのジョイント位置, x_alpha_o[1]はロボットアームの先端の位置
-	int y_J1_o[] = {   0, 100,   0, 100, 100,   0 };	//y_alpha_o[0]はロボットアームのジョイント位置, y_alpha_o[1]はロボットアームの先端の位置
-	int x_J2_o[]	= {	  0,   0,  10,  10, -10, -10 };	//x_beta_o[0]はロボットアームのジョイント位置, x_beta_o[1]はロボットアームの先端の位置
-	int y_J2_o[]	= {	  0, 100,   0, 100, 100,   0 };	//y_beta_o[0]はロボットアームのジョイント位置,	y_beta_o[1]はロボットアームの先端の位置
+	int x_J1_o[] = {  0,   0,  10,  10, -10, -10 };	//x_alpha_o[0]はロボットアームのジョイント位置, x_alpha_o[1]はロボットアームの先端の位置
+	int y_J1_o[] = {  0, 100,   0, 100, 100,   0 };	//y_alpha_o[0]はロボットアームのジョイント位置, y_alpha_o[1]はロボットアームの先端の位置
+	int x_J2_o[] = {  0,   0,  10,  10, -10, -10 };	//x_beta_o[0]はロボットアームのジョイント位置, x_beta_o[1]はロボットアームの先端の位置
+	int y_J2_o[] = {  0, 100,   0, 100, 100,   0 };	//y_beta_o[0]はロボットアームのジョイント位置,	y_beta_o[1]はロボットアームの先端の位置
+	int x_J3_o[] = { 0, 30, 30, 15, 15, -15, -15, -30, -30};	//手先位置X,x_J3_o[0]はロボットアームのジョイント位置
+	int y_J3_o[] = { 0,  0, 40, 40, 10,  10,  40,  40,   0};	//手先位置Y,y_J3_o[0]はロボットアームのジョイント位置
 
 	//アームロボットの現在位置を設定
 	static int x_J1[6] = { 0 };
 	static int y_J1[6] = { 0 };
 	static int x_J2[6] = { 0 };
 	static int y_J2[6] = { 0 };
+	static int x_J3[9] = { 0 };
+	static int y_J3[9] = { 0 };
 
 	//ロボットの現在位置（静的変数）
 	static int abs_alpha_Pos = 0;
@@ -423,8 +428,32 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 	//ペンの開放
 	myPen_beta2.DeleteObject();
 
+	//J3リンクの位置---------------------------------------------------------------
+	CPen myPen_J3;
+	myPen_J3.CreatePen(PS_SOLID, 2, RGB(250, 150, 50));		//ペンを作成
+	dcPict->SelectObject(&myPen_J3);						//ペンを選択
+
+	//2次元の回転行列を用いてロボットアームの位置を計算
+	for (int i = 8; i >= 0; i--) {
+		x_J3[i] = x_J3_o[i] * cos(-alpha - beta) + y_J3_o[i] * sin(-alpha - beta) + x_J2[1];
+		y_J3[i] = -x_J3_o[i] * sin(-alpha - beta) + y_J3_o[i] * cos(-alpha - beta) + y_J2[1];
+	}
+
+	//ロボットアーム(リンク)の描画
+	dcPict->MoveTo(offsetX + x_J3[1], offsetY - y_J3[1]);
+	for (int i = 8; i >= 1; i--) {
+		dcPict->LineTo(offsetX + x_J3[i], offsetY - y_J3[i]);
+	}
+
+	//ペンの開放
+	myPen_J3.DeleteObject();
 
 	//現在位置の更新
 	abs_alpha_Pos = m_alpha_Pos;
 	abs_beta_Pos = m_beta_Pos;
+}
+
+void CProjectSimulationORGexp15Dlg::OnBnClickedRelative()
+{
+	// TODO: ここにコントロール通知ハンドラー コードを追加します。
 }

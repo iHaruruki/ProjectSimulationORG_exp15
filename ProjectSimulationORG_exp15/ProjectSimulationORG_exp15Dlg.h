@@ -46,4 +46,5 @@ public:
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnBnClickedLeft();
 	afx_msg void OnBnClickedRight();
+	afx_msg void OnBnClickedRelative();
 };
