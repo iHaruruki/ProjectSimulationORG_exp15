@@ -7,6 +7,7 @@
 #include "ProjectSimulationORG_exp15.h"
 #include "ProjectSimulationORG_exp15Dlg.h"
 #include "afxdialogex.h"
+//#include <math.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -220,15 +221,23 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 	int offsetX = 200;	//X軸の中心
 	int offsetY = 250;	//Y軸の中心
 
-	//ロボットの初期位置を設定
-	int x_o = 0;		//X軸の初期位置(ロボットの中心)
-	int y_o = 0;		//Y軸の初期位置(ロボットの中心)
+	//アームロボットの初期位置を設定
+	int x_alpha_o = 0;	//X軸の初期位置(α軸)
+	int y_alpha_o = 0;	//Y軸の初期位置(α軸)
+	int x_beta_o = 0;	//X軸の初期位置(β軸）
+	int y_beta_o = 0;	//Y軸の初期位置(β軸)
+
+	//アームロボットの現在位置を設定
+	int x_alpha[] = { 0, 10, 10, -10, -10 };	//x[0]はロボットアームの中心位置
+	int y_alpha[] = { 50, 0, 100, 100, 0 };		//y[0]はロボットアームの中心位置
+	int x_beta = 0;
+	int y_beta = 0;
 
 	//ロボットの現在位置（静的変数）
 	static int abs_alpha_Pos = 0;
 	static int abs_beta_Pos = 0;
 
-	//軸の描画
+	//XY軸の描画
 	for (int i = 0; i < 400; i++) {
 		dcPict->SetPixel(i, offsetY, color);	//X軸
 	}
@@ -252,6 +261,11 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 		m_beta_Pos = abs_beta_Pos + m_beta_Dist;		//入力距離を移動位置に設定
 	}
 
+	//角度を度数法から弧度法に変換
+	const double M_PI = 3.14159265358979323846;	//円周率を定義
+	double alpha = m_alpha_Pos * M_PI / 180;
+	double beta = m_beta_Pos * M_PI / 180;
+
 	//位置の範囲をチェック
 	if (m_alpha_Dist < -36 || m_alpha_Dist > 36 || m_beta_Dist < -44 || m_beta_Dist > 44) {
 		MessageBox(_T("範囲外の値です。"), _T("エラー"), MB_ICONEXCLAMATION);
@@ -261,25 +275,38 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 	//ダイアログボックスに変数からデータを転送
 	UpdateData(FALSE);
 
+	//初期のロボットの位置------------------------------------------------------------
+	// α軸の初期位置
 	//ペンの指定
 	CPen myPen;
-	myPen.CreatePen(PS_SOLID, 2, RGB(255, 0, 0));	//赤色のペンを作成
+	myPen.CreatePen(PS_SOLID, 2, RGB(0, 0, 255));	//青色のペンを作成
 	dcPict->SelectObject(&myPen);					//ペンを選択
 
-	//ロボットの描画
-	dcPict->MoveTo(offsetX + x_o, offsetY - y_o);	//ロボットの初期位置に移動
+	//関節関節(ジョイント)描画
+	dcPict->Ellipse(offsetX + x_alpha_o - 20, offsetY - y_alpha_o - 20, offsetX + x_alpha_o + 20, offsetY - y_alpha_o + 20);
+
+	//ロボットアーム(リンク)の描画
+	dcPict->MoveTo(offsetX + x_alpha[1], offsetY - y_alpha[1]);	//ロボットの初期位置に移動
 	for (int i = 4; i >= 1; i--) {
-		dcPict->LineTo(offsetX + x_o + m_alpha_Pos, offsetY - y_o + m_beta_Pos);//----------
+		dcPict->LineTo(offsetX + x_alpha[i], offsetY - y_alpha[i]);
 	}
 
 	//ペンの開放
 	myPen.DeleteObject();
 
-	//移動後のロボットの位置
+	//移動後のロボットの位置----------------------------------------------------------
+	//α軸の移動後の位置
 	int x_m[5], y_m[5];
 	for (int i = 0; i < 5; i++) {
-		x_m[i] = offsetX + x_o + m_alpha_Pos;
-		y_m[i] = offsetY - y_o + m_beta_Pos;
+		x_m[i] = offsetX + x_alpha_o + m_alpha_Pos;
+		y_m[i] = offsetY - y_alpha_o + m_alpha_Pos;
+	}
+
+	//β軸の移動後の位置
+	int x_m2[5], y_m2[5];
+	for (int i = 0; i < 5; i++) {
+		x_m2[i] = offsetX + x_beta_o + m_beta_Pos;
+		y_m2[i] = offsetY - y_beta_o + m_beta_Pos;
 	}
 
 	//ペンの指定
