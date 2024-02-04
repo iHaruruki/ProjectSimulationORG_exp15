@@ -248,7 +248,7 @@ void CProjectSimulationORGexp15Dlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBa
 
 	//エディトボックスの値を設定
 	//メンバ変数m_vsbValのスクロールバーの現在位置を検出して代入
-	m_alpha_Dist = m_vsbVal.GetScrollPos();
+	m_alpha_Dist = -m_vsbVal.GetScrollPos();
 
 	//ダイアログボックスに変数(m_vsbVal.GetScrollPos())からデータを転送
 	UpdateData(FALSE);
@@ -305,11 +305,11 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 	int offsetX = 200;	//X軸の中心
 	int offsetY = 250;	//Y軸の中心
 
-	//アームロボットの初期位置を設定
-	int x_alpha_o[] = {   0,   0,  10,  10, -10, -10 };	//x[0]はロボットアームのジョイント位置
-	int y_alpha_o[] = {   0, 100,   0, 100, 100,   0 };	//y[0]はロボットアームのジョイント位置
-	int x_beta_o[]	= {	  0,   0,  10,  10, -10, -10 };	//X軸の初期位置(β軸）
-	int y_beta_o[]	= {	  0, 100,   0, 100, 100,   0 };	//Y軸の初期位置(β軸)
+	//アームロボットの初期位置を設定(相対座標で表現)
+	int x_alpha_o[] = {   0,   0,  10,  10, -10, -10 };	//x_alpha_o[0]はロボットアームのジョイント位置, x_alpha_o[1]はロボットアームの先端の位置
+	int y_alpha_o[] = {   0, 100,   0, 100, 100,   0 };	//y_alpha_o[0]はロボットアームのジョイント位置, y_alpha_o[1]はロボットアームの先端の位置
+	int x_beta_o[]	= {	  0,   0,  10,  10, -10, -10 };	//x_beta_o[0]はロボットアームのジョイント位置, x_beta_o[1]はロボットアームの先端の位置
+	int y_beta_o[]	= {	  0, 100,   0, 100, 100,   0 };	//y_beta_o[0]はロボットアームのジョイント位置,	y_beta_o[1]はロボットアームの先端の位置
 	//int x_beta_o[]	= {	  0,   0,  10,  10, -10, -10 };	//X軸の初期位置(β軸）
 	//int y_beta_o[]	= {	100, 200, 100, 200, 200, 100 };	//Y軸の初期位置(β軸)
 
@@ -346,17 +346,38 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 		m_alpha_Pos = abs_alpha_Pos + m_alpha_Dist;		//絶対位置を移動位置に設定
 		m_beta_Pos = abs_beta_Pos + m_beta_Dist;		//入力距離を移動位置に設定
 	}
+	else {
+		MessageBox(_T("ラジオボタンが選択されていません。"), _T("エラー"), MB_ICONEXCLAMATION);
+		return;
+	
+	}
+
+	//位置の範囲をチェック
+	if (m_alpha_Pos < -36) {
+		m_alpha_Pos = -36;
+	}
+	else if (m_alpha_Pos > 36) {
+		m_alpha_Pos = 36;
+	}
+	if (m_beta_Pos < -44) {
+		m_beta_Pos = -44;
+	}
+	else if (m_beta_Pos > 44) {
+		m_beta_Pos = 44;
+	}
+	/*if (m_alpha_Pos <= -36 || m_alpha_Pos >= 36) {
+		MessageBox(_T("'α'が範囲外の値です。"), _T("エラー"), MB_ICONEXCLAMATION);
+		return;
+	}
+	else if (m_beta_Pos <= -44 || m_beta_Pos >= 44) {
+		MessageBox(_T("'β'が範囲外の値です。"), _T("エラー"), MB_ICONEXCLAMATION);
+		return;
+	}*/
 
 	//角度を度数法から弧度法に変換
 	const double M_PI = 3.14159265358979323846;	//円周率を定義
 	double alpha = m_alpha_Pos * M_PI / 180;
 	double beta = m_beta_Pos * M_PI / 180;
-
-	//位置の範囲をチェック
-	if (m_alpha_Dist < -36 || m_alpha_Dist > 36 || m_beta_Dist < -44 || m_beta_Dist > 44) {
-		MessageBox(_T("範囲外の値です。"), _T("エラー"), MB_ICONEXCLAMATION);
-		return;
-	}
 
 	//ダイアログボックスに変数からデータを転送
 	UpdateData(FALSE);
