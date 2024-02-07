@@ -49,4 +49,5 @@ public:
 	afx_msg void OnBnClickedRelative();
 	afx_msg void OnLbnSelchangeList1();
 	afx_msg void OnCbnSelchangeCombo();
+	afx_msg void OnBnClickedMfcbutton();
 };

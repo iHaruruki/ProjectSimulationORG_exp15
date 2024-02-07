@@ -8,6 +8,8 @@
 #include "ProjectSimulationORG_exp15Dlg.h"
 #include "afxdialogex.h"
 //#include <math.h>
+#include <tchar.h>
+#include <Windows.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -85,6 +87,7 @@ BEGIN_MESSAGE_MAP(CProjectSimulationORGexp15Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_LEFT, &CProjectSimulationORGexp15Dlg::OnBnClickedLeft)
 	ON_BN_CLICKED(IDC_RIGHT, &CProjectSimulationORGexp15Dlg::OnBnClickedRight)
 	ON_BN_CLICKED(IDC_RELATIVE, &CProjectSimulationORGexp15Dlg::OnBnClickedRelative)
+	ON_BN_CLICKED(IDC_MFCBUTTON, &CProjectSimulationORGexp15Dlg::OnBnClickedMfcbutton)
 END_MESSAGE_MAP()
 
 
@@ -283,6 +286,29 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedRight()
 	UpdateData(FALSE);
 }
 
+//原点のオフセットを設定
+int offsetX = 200;	//X軸の中心
+int offsetY = 250;	//Y軸の中心
+
+//アームロボットの初期位置を設定(相対座標で表現)
+double x_J1_o[] = { 0,   0,  10,  10, -10, -10 };	//x_alpha_o[0]はロボットアームのジョイント位置, x_alpha_o[1]はロボットアームの先端の位置
+double y_J1_o[] = { 0, 100,   0, 100, 100,   0 };	//y_alpha_o[0]はロボットアームのジョイント位置, y_alpha_o[1]はロボットアームの先端の位置
+double x_J2_o[] = { 0,   0,  10,  10, -10, -10 };	//x_beta_o[0]はロボットアームのジョイント位置, x_beta_o[1]はロボットアームの先端の位置
+double y_J2_o[] = { 0, 100,   0, 100, 100,   0 };	//y_beta_o[0]はロボットアームのジョイント位置,	y_beta_o[1]はロボットアームの先端の位置
+double x_J3_o[] = { 0,  30,  30,  15,  15, -15, -15, -30, -30 };	//手先位置X,x_J3_o[0]はロボットアームのジョイント位置
+double y_J3_o[] = { 0,   0,  40,  40,  10,  10,  40,  40,   0 };	//手先位置Y,y_J3_o[0]はロボットアームのジョイント位置
+
+//アームロボットの現在位置を設定
+static int x_J1[6] = { 0 };
+static int y_J1[6] = { 0 };
+static int x_J2[6] = { 0 };
+static int y_J2[6] = { 0 };
+static double x_J3[9] = { 0 };
+static double y_J3[9] = { 0 };
+
+double alpha = 0;	//J1アームロボットの角度
+double beta = 0;	//J2アームロボットの角度
+
 void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 {
 	// TODO: ここにコントロール通知ハンドラー コードを追加します。
@@ -302,7 +328,7 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 	//ピクチャ・ボックスをクリアする
 	dcPict->FillSolidRect(pictRect, RGB(255, 255, 255));	//白色で塗りつぶす
 
-	//原点のオフセットを設定
+	/*//原点のオフセットを設定
 	int offsetX = 200;	//X軸の中心
 	int offsetY = 250;	//Y軸の中心
 
@@ -311,8 +337,8 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 	int y_J1_o[] = {  0, 100,   0, 100, 100,   0 };	//y_alpha_o[0]はロボットアームのジョイント位置, y_alpha_o[1]はロボットアームの先端の位置
 	int x_J2_o[] = {  0,   0,  10,  10, -10, -10 };	//x_beta_o[0]はロボットアームのジョイント位置, x_beta_o[1]はロボットアームの先端の位置
 	int y_J2_o[] = {  0, 100,   0, 100, 100,   0 };	//y_beta_o[0]はロボットアームのジョイント位置,	y_beta_o[1]はロボットアームの先端の位置
-	int x_J3_o[] = { 0, 30, 30, 15, 15, -15, -15, -30, -30};	//手先位置X,x_J3_o[0]はロボットアームのジョイント位置
-	int y_J3_o[] = { 0,  0, 40, 40, 10,  10,  40,  40,   0};	//手先位置Y,y_J3_o[0]はロボットアームのジョイント位置
+	int x_J3_o[] = {  0,  30,  30,  15,  15, -15, -15, -30, -30};	//手先位置X,x_J3_o[0]はロボットアームのジョイント位置
+	int y_J3_o[] = {  0,   0,  40,  40,  10,  10,  40,  40,   0};	//手先位置Y,y_J3_o[0]はロボットアームのジョイント位置
 
 	//アームロボットの現在位置を設定
 	static int x_J1[6] = { 0 };
@@ -320,7 +346,7 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 	static int x_J2[6] = { 0 };
 	static int y_J2[6] = { 0 };
 	static int x_J3[9] = { 0 };
-	static int y_J3[9] = { 0 };
+	static int y_J3[9] = { 0 };*/
 
 	//ロボットの現在位置（静的変数）
 	static int abs_alpha_Pos = 0;
@@ -337,14 +363,14 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 	//ダイアログボックスから変数にデータを転送
 	UpdateData(TRUE);
 
-	//ラジオボタンの絶対位置に選択されているとき
+	//ラジオボタンの絶対角度に選択されているとき
 	if (absoluteRadio->GetCheck()) {
 		m_alpha_Pos = m_alpha_Dist;
 		m_beta_Pos = m_beta_Dist;	//入力距離を移動位置に設定
 		abs_alpha_Pos = 0;			//絶対位置の初期化
 		abs_beta_Pos = 0;			//絶対位置の初期化
 	}
-	//ラジオボタンの相対位置に選択されているとき
+	//ラジオボタンの相対角度に選択されているとき
 	else if (relativeRadio->GetCheck()) {
 		m_alpha_Pos = abs_alpha_Pos + m_alpha_Dist;		//絶対位置を移動位置に設定
 		m_beta_Pos = abs_beta_Pos + m_beta_Dist;		//入力距離を移動位置に設定
@@ -372,8 +398,8 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 
 	//角度を度数法から弧度法に変換
 	const double M_PI = 3.14159265358979323846;	//円周率を定義
-	double alpha = m_alpha_Pos * M_PI / 180;
-	double beta = m_beta_Pos * M_PI / 180;
+	alpha = m_alpha_Pos * M_PI / 180;
+	beta = m_beta_Pos * M_PI / 180;
 
 	//ダイアログボックスに変数からデータを転送
 	UpdateData(FALSE);
@@ -457,4 +483,82 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 void CProjectSimulationORGexp15Dlg::OnBnClickedRelative()
 {
 	// TODO: ここにコントロール通知ハンドラー コードを追加します。
+}
+
+void CProjectSimulationORGexp15Dlg::OnBnClickedMfcbutton()
+{
+	// TODO: ここにコントロール通知ハンドラー コードを追加します。
+
+	CWnd* cwdPict = GetDlgItem(IDC_PICTURE);	//IDC_PICTUREのウィンドウハンドルを取得
+	CDC* dcPict = cwdPict->GetDC();				//デバイスコンテキストの取得
+
+	CRect pictRect;								//ピクチャ・ボックスの座標を格納
+	cwdPict->GetClientRect(&pictRect);			//ピクチャ・ボックスの座標を取得
+
+	//開始点の座標
+	//int startX[] = { 0,  30,  30,  15,  15, -15, -15, -30, -30 };
+	//int startY[] = { 0,   0,  40,  40,  10,  10,  40,  40,   0 };
+	//終了点
+	double x_J3_end_o[] = { 0,  30,  30,   5,   5,  -5,  -5, -30, -30 };
+	double y_J3_end_o[] = { 0,   0,  40,  40,  10,  10,  40,  40,   0 };
+	static double x_J3_end[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	static double y_J3_end[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	//移動距離
+	static double moveX_o[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	static double moveY_o[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+	//繰り返しの変数
+	int loop;
+
+	UpdateData(TRUE);
+
+	//2次元の回転行列を用いてロボットアームの位置を計算
+	for (int i = 8; i >= 0; i--) {
+		x_J3_end[i] = x_J3_end_o[i] * cos(-alpha - beta) + y_J3_end_o[i] * sin(-alpha - beta) + x_J2[1];
+		y_J3_end[i] = -x_J3_end_o[i] * sin(-alpha - beta) + y_J3_end_o[i] * cos(-alpha - beta) + y_J2[1];
+	}
+
+	UpdateData(FALSE);
+	
+	static int count = 0;	//開閉を判断するための変数
+
+	//アニメーションの描画
+
+	//1回の移動距離
+	for (int i = 8; i >= 0; i--) {
+		moveX_o[i] = (x_J3_end[i] - x_J3[i]) / (double)10;
+		moveY_o[i] = (y_J3_end[i] - y_J3[i]) / (double)10;
+	}
+
+	for (loop = 0; loop < 10; loop++) {
+
+		//前の図形を消去
+		//oldPen = dcPict->SelectObject(&newPen);	//前のペンの描画を消去
+		CPen myPen_old;
+		myPen_old.CreatePen(PS_SOLID, 2, RGB(255, 255, 255));		//ペンを作成
+		dcPict->SelectObject(&myPen_old);
+
+		dcPict->MoveTo(offsetX + x_J3[1], offsetY - y_J3[1]);
+		for (int i = 8; i >= 1; i--) {
+			dcPict->LineTo(offsetX + x_J3[i] + moveX_o[i] * loop, offsetY - y_J3[i] - moveY_o[i] * loop);
+		}
+
+		//ペンの開放
+		myPen_old.DeleteObject();
+
+		//次の図形を描く
+		CPen myPen_new;
+		myPen_new.CreatePen(PS_SOLID, 2, RGB(250, 150, 50));
+		dcPict->SelectObject(myPen_new);
+
+		dcPict->MoveTo(offsetX + x_J3[1], offsetY - y_J3[1]);
+		for (int i = 8; i >= 1; i--) {
+			dcPict->LineTo(offsetX + x_J3[i] + moveX_o[i] * (loop + 1), offsetY - y_J3[i] - moveY_o[i] * (loop + 1));
+		}
+
+		myPen_new.DeleteObject();	//ペンの開放
+
+		//アニメーションの表示
+		Sleep(100);	//100ms待機
+	}
 }
