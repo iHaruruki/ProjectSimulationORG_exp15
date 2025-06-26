@@ -88,6 +88,7 @@ BEGIN_MESSAGE_MAP(CProjectSimulationORGexp15Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_RIGHT, &CProjectSimulationORGexp15Dlg::OnBnClickedRight)
 	ON_BN_CLICKED(IDC_RELATIVE, &CProjectSimulationORGexp15Dlg::OnBnClickedRelative)
 	ON_BN_CLICKED(IDC_MFCBUTTON, &CProjectSimulationORGexp15Dlg::OnBnClickedMfcbutton)
+	ON_BN_CLICKED(IDC_MFCBUTTON1, &CProjectSimulationORGexp15Dlg::OnBnClickedMfcbutton1)
 END_MESSAGE_MAP()
 
 
@@ -309,6 +310,8 @@ static double y_J3[9] = { 0 };
 double alpha = 0;	//J1アームロボットの角度
 double beta = 0;	//J2アームロボットの角度
 
+int status = 0;		//状態を表す変数
+
 void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 {
 	// TODO: ここにコントロール通知ハンドラー コードを追加します。
@@ -449,6 +452,7 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedDraw()
 	dcPict->MoveTo(offsetX + x_J2[2], offsetY - y_J2[2]);
 	for (int i = 5; i >= 2; i--) {
 		dcPict->LineTo(offsetX + x_J2[i], offsetY - y_J2[i]);
+		status = 1;
 	}
 
 	//ペンの開放
@@ -493,11 +497,8 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedMfcbutton()
 	CDC* dcPict = cwdPict->GetDC();				//デバイスコンテキストの取得
 
 	CRect pictRect;								//ピクチャ・ボックスの座標を格納
-	cwdPict->GetClientRect(&pictRect);			//ピクチャ・ボックスの座標を取得
+	cwdPict->GetClientRect(&pictRect);			
 
-	//開始点の座標
-	//int startX[] = { 0,  30,  30,  15,  15, -15, -15, -30, -30 };
-	//int startY[] = { 0,   0,  40,  40,  10,  10,  40,  40,   0 };
 	//終了点
 	double x_J3_end_o[] = { 0,  30,  30,   5,   5,  -5,  -5, -30, -30 };
 	double y_J3_end_o[] = { 0,   0,  40,  40,  10,  10,  40,  40,   0 };
@@ -519,10 +520,6 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedMfcbutton()
 	}
 
 	UpdateData(FALSE);
-	
-	static int count = 0;	//開閉を判断するための変数
-
-	//アニメーションの描画
 
 	//1回の移動距離
 	for (int i = 8; i >= 0; i--) {
@@ -530,35 +527,121 @@ void CProjectSimulationORGexp15Dlg::OnBnClickedMfcbutton()
 		moveY_o[i] = (y_J3_end[i] - y_J3[i]) / (double)10;
 	}
 
-	for (loop = 0; loop < 10; loop++) {
+	//アニメーションの描画
+	if (status == 1)
+	{
+		for (loop = 0; loop < 10; loop++) {
 
-		//前の図形を消去
-		//oldPen = dcPict->SelectObject(&newPen);	//前のペンの描画を消去
-		CPen myPen_old;
-		myPen_old.CreatePen(PS_SOLID, 2, RGB(255, 255, 255));		//ペンを作成
-		dcPict->SelectObject(&myPen_old);
+			//前の図形を消去
+			CPen myPen_old;
+			myPen_old.CreatePen(PS_SOLID, 2, RGB(255, 255, 255));		//ペンを作成
+			dcPict->SelectObject(&myPen_old);
 
-		dcPict->MoveTo(offsetX + x_J3[1], offsetY - y_J3[1]);
-		for (int i = 8; i >= 1; i--) {
-			dcPict->LineTo(offsetX + x_J3[i] + moveX_o[i] * loop, offsetY - y_J3[i] - moveY_o[i] * loop);
+			dcPict->MoveTo(offsetX + x_J3[1], offsetY - y_J3[1]);
+			for (int i = 8; i >= 1; i--) {
+
+				dcPict->LineTo(offsetX + x_J3[i] + moveX_o[i] * loop, offsetY - y_J3[i] + moveY_o[i] * loop);
+			}
+
+			//ペンの開放
+			myPen_old.DeleteObject();
+
+			//次の図形を描く
+			CPen myPen_new;
+			myPen_new.CreatePen(PS_SOLID, 2, RGB(250, 150, 50));
+			dcPict->SelectObject(myPen_new);
+
+			dcPict->MoveTo(offsetX + x_J3[1], offsetY - y_J3[1]);
+			for (int i = 8; i >= 1; i--) {
+
+				dcPict->LineTo(offsetX + x_J3[i] + moveX_o[i] * (1 + loop), offsetY - y_J3[i] + moveY_o[i] * (1 + loop));
+			}
+
+			myPen_new.DeleteObject();	//ペンの開放
+
+			//アニメーションの表示
+			Sleep(100);	//100ms待機
 		}
+		status = 2;
+	}
+}
 
-		//ペンの開放
-		myPen_old.DeleteObject();
 
-		//次の図形を描く
-		CPen myPen_new;
-		myPen_new.CreatePen(PS_SOLID, 2, RGB(250, 150, 50));
-		dcPict->SelectObject(myPen_new);
+void CProjectSimulationORGexp15Dlg::OnBnClickedMfcbutton1()
+{
+	// TODO: ここにコントロール通知ハンドラー コードを追加します。
 
-		dcPict->MoveTo(offsetX + x_J3[1], offsetY - y_J3[1]);
-		for (int i = 8; i >= 1; i--) {
-			dcPict->LineTo(offsetX + x_J3[i] + moveX_o[i] * (loop + 1), offsetY - y_J3[i] - moveY_o[i] * (loop + 1));
+	CWnd* cwdPict = GetDlgItem(IDC_PICTURE);	//IDC_PICTUREのウィンドウハンドルを取得
+	CDC* dcPict = cwdPict->GetDC();				//デバイスコンテキストの取得
+
+	CRect pictRect;								//ピクチャ・ボックスの座標を格納
+	cwdPict->GetClientRect(&pictRect);
+
+	//終了点
+	double x_J3_end_o[] = { 0,  30,  30,   5,   5,  -5,  -5, -30, -30 };
+	double y_J3_end_o[] = { 0,   0,  40,  40,  10,  10,  40,  40,   0 };
+	static double x_J3_end[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	static double y_J3_end[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	//移動距離
+	static double moveX_o[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	static double moveY_o[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+	//繰り返しの変数
+	int loop;
+
+	UpdateData(TRUE);
+
+	//2次元の回転行列を用いてロボットアームの位置を計算
+	for (int i = 8; i >= 0; i--) {
+		x_J3_end[i] = x_J3_end_o[i] * cos(-alpha - beta) + y_J3_end_o[i] * sin(-alpha - beta) + x_J2[1];
+		y_J3_end[i] = -x_J3_end_o[i] * sin(-alpha - beta) + y_J3_end_o[i] * cos(-alpha - beta) + y_J2[1];
+	}
+
+	UpdateData(FALSE);
+
+	static int count = 0;	//開閉を判断するための変数
+
+	//1回の移動距離
+	for (int i = 8; i >= 0; i--) {
+		moveX_o[i] = (x_J3[i] - x_J3_end[i]) / (double)10;
+		moveY_o[i] = (y_J3[i] - y_J3_end[i]) / (double)10;
+	}
+
+	//アニメーションの描画
+	if (status == 2)
+	{
+		for (loop = 0; loop < 10; loop++) {
+
+			//前の図形を消去
+			CPen myPen_old;
+			myPen_old.CreatePen(PS_SOLID, 2, RGB(255, 255, 255));		//ペンを作成
+			dcPict->SelectObject(&myPen_old);
+
+			dcPict->MoveTo(offsetX + x_J3[1], offsetY - y_J3[1]);
+			for (int i = 8; i >= 1; i--) {
+
+				dcPict->LineTo(offsetX + x_J3[i] + moveX_o[i] * loop, offsetY - y_J3[i] + moveY_o[i] * loop);
+			}
+
+			//ペンの開放
+			myPen_old.DeleteObject();
+
+			//次の図形を描く
+			CPen myPen_new;
+			myPen_new.CreatePen(PS_SOLID, 2, RGB(250, 150, 50));
+			dcPict->SelectObject(myPen_new);
+
+			dcPict->MoveTo(offsetX + x_J3[1], offsetY - y_J3[1]);
+			for (int i = 8; i >= 1; i--) {
+
+				dcPict->LineTo(offsetX + x_J3[i] + moveX_o[i] * (1 + loop), offsetY - y_J3[i] + moveY_o[i] * (1 + loop));
+			}
+
+			myPen_new.DeleteObject();	//ペンの開放
+
+			//アニメーションの表示
+			Sleep(100);	//100ms待機
 		}
-
-		myPen_new.DeleteObject();	//ペンの開放
-
-		//アニメーションの表示
-		Sleep(100);	//100ms待機
+		status = 1;
 	}
 }
